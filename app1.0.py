@@ -11,6 +11,25 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 import warnings
 warnings.filterwarnings('ignore')
 
+def format_number(value):
+    """Format numbers with commas and appropriate decimal places"""
+    if pd.isna(value):
+        return value
+    if isinstance(value, (int, float)):
+        if value >= 1000:
+            return f"{value:,.2f}"
+        else:
+            return f"{value:.2f}"
+    return value
+
+def format_dataframe(df):
+    """Format all numeric columns in a dataframe with proper number formatting"""
+    df_formatted = df.copy()
+    for col in df_formatted.columns:
+        if df_formatted[col].dtype in ['int64', 'float64']:
+            df_formatted[col] = df_formatted[col].apply(format_number)
+    return df_formatted
+
 # Page configuration
 st.set_page_config(
     page_title="🎯 Kickstarter Project Clustering Analysis",
@@ -314,7 +333,9 @@ def show_home_page(df_with_clusters):
     
     cluster_summary = cluster_summary.sort_values('Count', ascending=False)
     
-    st.dataframe(cluster_summary, use_container_width=True)
+    # Format the dataframe for better readability
+    cluster_summary_formatted = format_dataframe(cluster_summary)
+    st.dataframe(cluster_summary_formatted, use_container_width=True)
     
     # Quick insights
     st.markdown("## 💡 Quick Insights")
@@ -362,7 +383,9 @@ def show_data_overview(df_with_clusters):
     
     # Data preview
     st.markdown("### 👀 Data Preview")
-    st.dataframe(df_with_clusters.head(10), use_container_width=True)
+    # Format the dataframe for better readability
+    df_preview_formatted = format_dataframe(df_with_clusters.head(10))
+    st.dataframe(df_preview_formatted, use_container_width=True)
     
     # Missing values
     st.markdown("### 🔍 Missing Values Analysis")
@@ -373,7 +396,9 @@ def show_data_overview(df_with_clusters):
         'Percentage': (missing_data.values / len(df_with_clusters)) * 100
     }).sort_values('Missing Values', ascending=False)
     
-    st.dataframe(missing_df, use_container_width=True)
+    # Format the dataframe for better readability
+    missing_df_formatted = format_dataframe(missing_df)
+    st.dataframe(missing_df_formatted, use_container_width=True)
 
 def show_cluster_analysis(df_with_clusters):
     """Display detailed cluster analysis"""
@@ -422,7 +447,9 @@ def show_cluster_analysis(df_with_clusters):
     with col1:
         st.markdown("### 📊 Numerical Features")
         numerical_stats = cluster_data[['usd_goal_real', 'usd_pledged_real', 'pledge_goal_ratio', 'days_duration']].describe()
-        st.dataframe(numerical_stats, use_container_width=True)
+        # Format the dataframe for better readability
+        numerical_stats_formatted = format_dataframe(numerical_stats)
+        st.dataframe(numerical_stats_formatted, use_container_width=True)
     
     with col2:
         st.markdown("### 📂 Category Distribution")
@@ -446,7 +473,9 @@ def show_cluster_analysis(df_with_clusters):
         })
     
     comparison_df = pd.DataFrame(comparison_data)
-    st.dataframe(comparison_df, use_container_width=True)
+    # Format the dataframe for better readability
+    comparison_df_formatted = format_dataframe(comparison_df)
+    st.dataframe(comparison_df_formatted, use_container_width=True)
 
 def show_project_predictor(df_with_clusters):
     """Show the project prediction interface"""
@@ -766,13 +795,17 @@ def show_detailed_statistics(df_with_clusters):
             numerical_cols.append('days_duration')
         
         numerical_stats = df_with_clusters[numerical_cols].describe()
-        st.dataframe(numerical_stats, use_container_width=True)
+        # Format the dataframe for better readability
+        numerical_stats_formatted = format_dataframe(numerical_stats)
+        st.dataframe(numerical_stats_formatted, use_container_width=True)
     
     with col2:
         st.markdown("#### 📂 Categorical Features")
         if 'main_category' in df_with_clusters.columns:
             category_stats = df_with_clusters['main_category'].value_counts().head(10)
-            st.dataframe(category_stats, use_container_width=True)
+            # Format the dataframe for better readability
+            category_stats_formatted = format_dataframe(category_stats)
+            st.dataframe(category_stats_formatted, use_container_width=True)
     
     # Cluster comparison
     st.markdown("### 🔄 Cluster Comparison")
@@ -791,7 +824,9 @@ def show_detailed_statistics(df_with_clusters):
     
     comparison_metrics = df_with_clusters.groupby('Cluster_Label').agg(agg_dict).round(2)
     
-    st.dataframe(comparison_metrics, use_container_width=True)
+    # Format the dataframe for better readability
+    comparison_metrics_formatted = format_dataframe(comparison_metrics)
+    st.dataframe(comparison_metrics_formatted, use_container_width=True)
     
     # Statistical tests
     st.markdown("### 🔬 Statistical Analysis")
