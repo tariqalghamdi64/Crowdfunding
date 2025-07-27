@@ -23,12 +23,20 @@ def format_number(value):
     return value
 
 def format_dataframe(df):
-    """Format all numeric columns in a dataframe with proper number formatting"""
-    df_formatted = df.copy()
-    for col in df_formatted.columns:
-        if df_formatted[col].dtype in ['int64', 'float64']:
-            df_formatted[col] = df_formatted[col].apply(format_number)
-    return df_formatted
+    """Format all numeric columns in a dataframe or series with proper number formatting"""
+    if isinstance(df, pd.Series):
+        # Handle Series objects (like from value_counts())
+        series_formatted = df.copy()
+        if series_formatted.dtype in ['int64', 'float64']:
+            series_formatted = series_formatted.apply(format_number)
+        return series_formatted
+    else:
+        # Handle DataFrame objects
+        df_formatted = df.copy()
+        for col in df_formatted.columns:
+            if df_formatted[col].dtype in ['int64', 'float64']:
+                df_formatted[col] = df_formatted[col].apply(format_number)
+        return df_formatted
 
 # Page configuration
 st.set_page_config(
